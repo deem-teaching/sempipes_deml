@@ -1,0 +1,46 @@
+# Secrets
+.env
+
+# Python
+*.pyc
+__pycache__/
+venv/
+.venv/
+dist/
+*/build/
+.pytest_cache/
+**/.ipynb_checkpoints/
+
+# Files written by SemPipes at runtime
+.sempipes_trajectories/
+.sem_gen_features_error_*/
+.sem_agg_features_error_*/
+
+# Artifacts written by models used inside generated code
+/catboost_info/
+lightning_logs/
+autogluon_*/
+Autogluon*/
+AutogluonModels/
+ag_*/
+
+# Editors / OS
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.history
+.DS_Store
+
+.ruff_cache/
+.mypy_cache/
+
+# Claude Code: share the project agents, skills, hooks and settings; keep personal files local
+CLAUDE.md
+.claude/*
+# !.claude/agents/
+# !.claude/skills/
+# !.claude/hooks/
+# !.claude/settings.json
+# !.claude/README.md
