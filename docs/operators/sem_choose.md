@@ -103,15 +103,6 @@ env["X"] = new_X
 predictions = best_learner.predict(env)
 ```
 
-## Pitfalls and tips
-
-* **The LLM call happens while you build the pipeline**, even when no data is attached. Re-running a notebook cell repeats the call (and may propose different values).
-* **The estimator object is mutated.** Don't reuse the same estimator instance elsewhere and expect its original parameters.
-* **Without a search, you get only the first proposed value.** `learner.fit(...)` or `cross_validate` alone does not tune anything. Use `.skb.make_randomized_search(...)` or `.skb.make_grid_search(...)`.
-* **Silent failure per parameter.** If generation fails, that parameter is simply not tuned. Print `model.skb.describe_param_grid()` or look at `search.results_` to see which parameters actually vary.
-* Every environment needs the hidden variable, so always start from `get_data()` (see [concepts](../concepts.md#environments-always-start-from-get_data)).
-* Inside [`optimise_colopro`](../optimizer.md), a pipeline with choices triggers a randomized search (`num_hpo_iterations_per_trial` candidates × `cv` folds) in **every trial**, which multiplies the training cost.
-
 ## See also
 
 * Example script: [`examples/11_sem_choose.py`](../../examples/11_sem_choose.py)

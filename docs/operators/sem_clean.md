@@ -65,12 +65,6 @@ cleaned = data.sem_clean(
 print(cleaned.skb.preview())
 ```
 
-## Pitfalls and tips
-
-* **Statistics are recomputed on every call.** The generated function has no fitted state. If it imputes with a median or clips at a quantile, that statistic is computed on the data it is applied to: on the test set at prediction time, or on a single row. If you need training-set values, ask in the prompt for fixed constants, or use an explicit scikit-learn imputer.
-* The function must keep the number of rows. Row filtering (e.g. dropping duplicates) is not possible with `sem_clean`.
-* The LLM only sees 10 values per column plus `describe()`. Rare dirty values that appear later in the data may be missed. Mention known edge cases in the prompt.
-* Check the result: the LLM may change dtypes (e.g. turn missing values into the string `"NaN"` if you ask it to).
 
 ## See also
 

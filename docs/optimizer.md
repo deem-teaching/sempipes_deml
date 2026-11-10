@@ -87,7 +87,6 @@ These only matter when the pipeline has **two or more** optimisable operators. E
 |---|---|
 | `"ucb"` (default) | Warm-up: one trial per operator. After that, a UCB1 bandit (via `mabwiser`) whose reward is the score improvement of a trial over its parent. `ucb_alpha` controls exploration. |
 | `"epsilon_greedy"` | Same warm-up, then an ε-greedy bandit with exploration rate `epsilon`. |
-| `"adaevolve_global_norm"` | Each operator is tried once. After that, UCB over decayed (ρ = 0.7), globally normalised improvements. `ucb_c` controls exploration. |
 | `"round_robin"` | Cycles through the operators in topological order. |
 | `optimize_all_operators=True` | Every operator in every trial. |
 | `only_optimize_operator="name"` | After the warm-up, always that operator. |
@@ -105,7 +104,7 @@ These only matter when the pipeline has **two or more** optimisable operators. E
 
 There is **no helper that applies the best outcome**. Copy the state into the environment yourself by setting `env["sempipes_prefitted_state__<name>"] = best.states.get("<name>")` before fitting or predicting. The operator then skips the LLM and runs that code.
 
-## Worked example
+## Example
 
 This example optimises one `sem_gen_features` operator on the training part of a dataset, then refits with the best code and evaluates **once** on the held-out test set.
 
@@ -192,17 +191,6 @@ A rough budget per run:
 * **Model training:** each trial runs `cv` model fits, or `cv × num_hpo_iterations_per_trial` if the pipeline has choices. Each evolution step also runs the pipeline up to the evolved operator once on the full training data.
 * **Hidden extra cost:** *non-optimisable* semantic operators in the same pipeline (e.g. `sem_fillna`, `sem_select`, per-row `sem_extract_features`) are refitted in every evolution step and in **every CV fold of every trial**, and they call the LLM each time. Run such steps once beforehand (`.skb.eval()`) and feed their output into the optimised pipeline as data.
 * Start small: `num_trials=5`, `cv=3`, a few hundred rows, then scale up.
-
-## Pitfalls
-
-* **Always pass a fresh search object.** The default `search=TreeSearch()` is created once when the module is imported and shared between calls. A second call without `search=` continues with the first run's outcomes. Write `search=TreeSearch()` or `search=MonteCarloTreeSearch()` explicitly every time.
-* **Higher must be better.** All search policies and the randomized search maximise the score. For regression use `"neg_mean_squared_error"`, `"neg_root_mean_squared_error"`, `"r2"`, and so on.
-* **Scores are CV scores on the training data.** With few rows and many trials you can overfit the CV. Always confirm on a held-out test set (step 4 above).
-* **Generated code can crash on unseen data.** The code of every trial has only been run on the training data. If the test data contains a value it has never seen, e.g. a free-text ZIP answer "No home" where the code calls `int(...)`, applying the state fails. Describe such quirks of the data in `nl_prompt`, and fall back to the next-best outcome if the best one fails. [`examples/12_optimise_colopro.py`](../examples/12_optimise_colopro.py) shows both.
-* **Parallel workers don't see `update_config`.** Cross-validation runs in separate processes (`n_jobs_for_evaluation=-1`, and always for the randomized search). The [config is a ContextVar](configuration.md#caveat-the-config-is-per-thread--per-context), so the workers use the **default** config. This doesn't matter for the optimisable operators, whose code is frozen during scoring. It does matter for other semantic operators that call the LLM inside the folds. In that case, set `n_jobs_for_evaluation=1` (pipelines with choices can't be made sequential).
-* **Operator names** must be unique and must not contain `__`.
-* **Mild optimism in the CV score:** code is generated from (samples of) the *full* training data and then cross-validated with that code frozen. The LLM may therefore have seen rows that end up in the validation folds. The effect is usually small, but it is one more reason to confirm on a held-out test set.
-* `EvolutionarySearch` assumes positive scores. With negative scorers (`neg_*`) use `TreeSearch` or `MonteCarloTreeSearch`.
 
 ## See also
 

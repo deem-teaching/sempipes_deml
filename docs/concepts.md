@@ -2,7 +2,7 @@
 
 This page covers what you need before using the individual operators:
 
-1. [skrub DataOps in ten minutes](#skrub-dataops-in-ten-minutes)
+1. [skrub DataOps](#skrub-dataops-in-ten-minutes)
 2. [The two execution styles](#the-two-execution-styles)
 3. [When is the LLM called?](#when-is-the-llm-called)
 4. [Train/test discipline](#traintest-discipline)
@@ -11,9 +11,9 @@ This page covers what you need before using the individual operators:
 7. [Files SemPipes writes](#files-sempipes-writes)
 8. [Operator overview](#operator-overview)
 
-## skrub DataOps in ten minutes
+## skrub DataOps
 
-SemPipes does not have its own pipeline abstraction. It adds methods to [skrub](https://skrub-data.org/) **DataOps**, which are lazily recorded computations over dataframes. If you know pandas and scikit-learn, DataOps will feel familiar.
+SemPipes adds methods to [skrub](https://skrub-data.org/) **DataOps**, which are lazily evaluated computations over dataframes. If you know pandas and scikit-learn, DataOps will feel familiar.
 
 `import sempipes` monkey-patches the skrub classes. After the import, every `DataOp` has the methods `.sem_select`, `.sem_clean`, `.sem_refine`, `.sem_fillna`, `.sem_extract_features`, `.sem_gen_features`, `.sem_agg_features`, `.sem_augment` and `.sem_distill`, and the `.skb` namespace gains `.skb.apply_with_sem_choose`. The top-level package exports `sempipes.sem_choose`, `sempipes.as_X`, `sempipes.as_y`, `sempipes.get_config`, `sempipes.update_config` and `sempipes.LLM`.
 
@@ -52,8 +52,7 @@ pred = X.skb.apply(skrub.TableVectorizer()).skb.apply(HistGradientBoostingClassi
 
 * `.skb.apply(estimator, y=...)` adds a scikit-learn transformer or predictor to the graph. SemPipes operators are scikit-learn-style estimators that are added in exactly this way. The two exceptions are `sem_select`, which uses `.skb.select(...)` with an LLM-backed selector, and `sem_choose`, which configures *your* estimator before applying it.
 * `.skb.mark_as_X()` and `.skb.mark_as_y()` tell skrub where the features and the target are. Cross-validation splits the data **at these marks**, so everything before them is computed once on the full data (see [train/test discipline](#traintest-discipline)).
-* `sempipes.as_X(op, description)` and `sempipes.as_y(op, description)` mark X/y and also attach a natural-language description. The descriptions go into the *pipeline summary* that the [optimiser](optimizer.md) hands to `sem_gen_features` (dataset and target description, model, task type, metric) and to `sem_augment` in code mode (dataset description). **Outside of `optimise_colopro` the descriptions are not sent to the LLM.** In that case, put important context into the `nl_prompt` itself.
-
+* `sempipes.as_X(op, description)` and `sempipes.as_y(op, description)` mark X/y and also attach a natural-language description. The descriptions go into the *pipeline summary* that the [optimiser](optimizer.md) hands to `sem_gen_features` (dataset and target description, model, task type, metric) and to `sem_augment` in code mode (dataset description).
 ```python
 X = sempipes.as_X(skrub.var("responses"), "Survey answers of US residents about the Midwest")
 y = sempipes.as_y(skrub.var("labels"), "The census region the respondent lives in")

@@ -69,14 +69,6 @@ y = distilled["churned"].skb.mark_as_y()
 pred = X.skb.apply(skrub.TableVectorizer()).skb.apply(HistGradientBoostingClassifier(), y=y)
 ```
 
-## Pitfalls and tips
-
-* **Needs at least ~50 rows.** The validation step asks for 50 rows from the first 100. With fewer than 50 training rows, every attempt fails and the step raises.
-* **Raises on failure.** Unlike the optimisable operators, there is no silent fallback.
-* **The final size is not checked.** Only the validation run (100 → 50 rows) is checked. Verify the shape of the distilled data yourself.
-* **Cross-validation sees the distilled data only.** Distillation sits before the X/y split, so skrub runs it once on the full data and then cross-validates on the distilled rows. Evaluate on a separate test set (see [concepts](../concepts.md#traintest-discipline)).
-* The prompt mentions libraries that are not on the [`safe_exec`](../concepts.md#privacy-and-safety) allow-list or not installed (e.g. `torchvision`, SMOTE implementations). Code that imports them fails and is retried. Steer the LLM with your prompt ("use scikit-learn / pandas only") if you see such errors.
-
 ## See also
 
 * Example script: [`examples/10_sem_distill.py`](../../examples/10_sem_distill.py)

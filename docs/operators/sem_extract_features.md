@@ -154,17 +154,6 @@ described = products.sem_extract_features(
 print(described.skb.preview())
 ```
 
-## Pitfalls and tips
-
-* **Code mode needs at least 10 training rows.** It samples 10 example values without replacement and raises `ValueError: Cannot take a larger sample than population` on smaller tables.
-* **Code mode resets the index.** The returned table has a fresh `0..n-1` index. This matters if you later join or concatenate it with another branch by index.
-* **Silent fallback in code mode.** If code generation fails completely, no columns are added (look for `No code generated after ... retries` in the log).
-* **Per-row mode costs scale with rows**, on training and test data, at every fit and every prediction. Develop with `df.head(...)` and a low `batch_size_for_batch_processing` on free tiers.
-* **Mixed types in per-row mode.** Values come back as JSON types (numbers or strings), with `"Unknown"` for failed rows. Cast explicitly, e.g. `.astype(int)`, after checking.
-* **Local compute in code mode.** Large models on a CPU can be slow. Say so in the prompt ("use a small, fast model") if needed.
-* In per-row mode with explicit `output_columns`, put all instructions into the feature descriptions, because `nl_prompt` is not sent.
-* When `output_columns=None`, the set of features can change between fits. Fix `output_columns` for reproducible pipelines.
-
 ## See also
 
 * Example scripts: [`examples/05_sem_extract_features_text.py`](../../examples/05_sem_extract_features_text.py), [`examples/06_sem_extract_features_images.py`](../../examples/06_sem_extract_features_images.py)

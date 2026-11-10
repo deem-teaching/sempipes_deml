@@ -114,15 +114,6 @@ imputed = data.sem_fillna(
 print(imputed.skb.preview()["department"].isna().sum())   # 0
 ```
 
-## Pitfalls and tips
-
-* **`impute_with_existing_values_only=False` without `with_llm_only=True` crashes** with an `AssertionError` that has no message.
-* **Per-row mode writes strings.** Numeric columns receive values like `"42"`. Convert them afterwards (e.g. `.astype(float)`).
-* **Per-row mode is not cached.** Every `.skb.eval()`, every cross-validation fold and every prediction re-sends all rows with missing values. On free API tiers, lower `batch_size_for_batch_processing` (see [configuration](../configuration.md#rate-limits-and-batch-size)).
-* "Use only existing values" is a request, not a guarantee. Check the imputed values in both modes. In default mode a regression model can also produce values that were never observed.
-* Default mode one-hot encodes all non-numeric columns. Wide text or ID columns make the feature matrix huge. Drop or select columns first.
-* In default mode, a generated `TabularPredictor` writes its models to an `AutogluonModels/` folder in your working directory.
-* Look at the printed `Validation error of model i: ...` lines. If every error is `inf`, the dummy fallback (median / most frequent value) is being used.
 
 ## See also
 

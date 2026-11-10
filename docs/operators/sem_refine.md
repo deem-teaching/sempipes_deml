@@ -61,19 +61,6 @@ refined = data.sem_refine(
 print(refined.skb.preview()["country_code"].value_counts())
 ```
 
-## Pitfalls and tips
-
-* **Known issue: other columns with missing values.** The NaN sanity check compares the number of missing values in **every** returned column with the number in the target column (within the first 50 rows). If another column has a different number of NaNs there, every attempt fails and the step raises, even when the code is correct. Workaround: refine a one-column table and put the result back:
-
-  ```python
-  refined = data[["city"]].sem_refine(target_column="city", nl_prompt="...", refine_with_existing_values_only=False)
-  data = data.assign(city=refined["city"])
-  ```
-
-* **Prompt size grows with cardinality.** All distinct values go into the prompt. Use `sem_refine` on categorical columns with up to a few hundred distinct values, not on free text or IDs.
-* **Unseen values at test time.** The mapping is learned from the training values. Values that only occur in the test data usually pass through unchanged, because dictionary-based `replace` leaves unknown keys alone.
-* `refine_with_existing_values_only=True` is not enforced. Check `value_counts()` before and after.
-
 ## See also
 
 * Example script: [`examples/03_sem_refine.py`](../../examples/03_sem_refine.py)

@@ -90,14 +90,6 @@ pred = X.skb.apply(skrub.TableVectorizer()).skb.apply(HistGradientBoostingClassi
 
 `errors="ignore"` lets the same pipeline predict on test data that has no `high_risk` column. During `predict`, `sem_augment` passes the rows through unchanged, so you get one prediction per test row.
 
-## Pitfalls and tips
-
-* **Needs at least 10 rows.** Both modes sample 10 example rows without replacement and raise a `ValueError` on smaller tables.
-* **Augmentation sits before the X/y split, so cross-validation is optimistic.** skrub runs everything before `mark_as_X()`/`mark_as_y()` once on the full data and only then splits into folds. Synthetic rows (generated from all rows) end up in the validation folds too. Evaluate on a separate held-out test set with `learner.fit(train_env)` / `learner.predict(test_env)` (see [concepts](../concepts.md#traintest-discipline)).
-* **Silent fallback in code mode.** If code generation fails, the data is returned without new rows. Check the shape.
-* Direct mode can return slightly different dtypes or missing values (`pandas.read_json` infers types). Check and clean the new rows.
-* Direct mode is limited by the LLM's output length and cost. Use code mode for hundreds or thousands of rows.
-
 ## See also
 
 * Example script: [`examples/09_sem_augment.py`](../../examples/09_sem_augment.py)

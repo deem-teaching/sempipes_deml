@@ -84,14 +84,6 @@ print(enriched.skb.preview())   # country + new features; customer_id is dropped
 
 To predict on new data, the environment must contain **both** tables, e.g. `{"customers": new_customers, "orders": all_orders}`. Build it from `pipeline.skb.get_data()` (see [concepts](../concepts.md#environments-always-start-from-get_data)).
 
-## Pitfalls and tips
-
-* **Silent fallback.** If code generation fails completely, no columns are added. Check the output.
-* **Same key name on both sides.** At transform time, SemPipes drops every column named `right_on`. When `left_on == right_on`, the left key column is removed from the output as well (the validation step doesn't do this, so it only shows up in the real result). If you still need the key downstream, rename it in one of the tables first, e.g. `orders_op.rename(columns={"customer_id": "cust_id"})` with `right_on="cust_id"`.
-* **Keys without matches** in the right table usually get `NaN` features (left join). Downstream models must handle missing values.
-* The right table enters the prompt as `describe()` plus samples. A very wide right table makes the prompt long. Select the relevant columns first.
-* As with all generated code, aggregations are recomputed on the data passed at transform time. That is usually what you want for per-key aggregates, but constants taken from `describe()` come from the training data.
-* Every fit (e.g. every CV fold) triggers a new conversation. Use the prefitted state to freeze good code (see [concepts](../concepts.md#optimisable-operators-and-hidden-variables)).
 
 ## See also
 

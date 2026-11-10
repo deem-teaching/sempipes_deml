@@ -58,14 +58,6 @@ metric = some_df.sem_select("Columns whose values are in the metric system")
 print(metric.skb.preview())   # most likely height_mm and width_mm
 ```
 
-## Pitfalls and tips
-
-* **Silent drops.** A failed LLM call removes the column. If your API key is missing or you hit a rate limit, you can end up with an **empty table** and no error. Always check the resulting columns.
-* **Cost grows with the number of columns.** Each column means one sequential request at every fit, including in every cross-validation fold. For wide tables, consider running `sem_select` once on the training data and hard-coding the result.
-* **Non-deterministic.** The sample values are random, so two runs can make different decisions for borderline columns.
-* Describe what to **keep**, not what to drop. The prompt asks the LLM whether each column is *relevant* to your description.
-* The LLM only sees ten values per column. Decisions that need the full distribution or the target variable (e.g. "columns correlated with the label") are out of reach.
-
 ## See also
 
 * Example script: [`examples/01_sem_select.py`](../../examples/01_sem_select.py)

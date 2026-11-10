@@ -44,3 +44,7 @@ CLAUDE.md
 # !.claude/hooks/
 # !.claude/settings.json
 # !.claude/README.md
+
+AGENTS.md
+.agents/
+.codex/ 

@@ -85,15 +85,6 @@ X = X.sem_gen_features(nl_prompt="...", name="house_features", how_many=5)
 pred = X.skb.apply(skrub.TableVectorizer()).skb.apply(HistGradientBoostingRegressor(), y=y)
 ```
 
-## Pitfalls and tips
-
-* **Describe the task yourself.** Outside the optimiser, the prompt always says "classification" and "accuracy". For a regression problem or a specific target, say so in `nl_prompt`.
-* **The LLM sees the first rows, not a random sample.** If your data is sorted, the first `n_prompt_samples` rows may not be representative. Shuffle first, or raise `n_prompt_samples`.
-* **Silent fallback.** If code generation fails completely, no columns are added and only an error is logged. Check the output columns.
-* **Statistics inside the code are recomputed on new data.** E.g. a feature "price relative to the column mean" uses the test-set mean at prediction time (see [train/test discipline](../concepts.md#traintest-discipline)).
-* Existing columns are kept, but the code is allowed to *overwrite* their values (e.g. to encode a categorical column). Read the generated code (`verbose_code_synthesis=True`).
-* Every fit means a new conversation: cross-validation with 5 folds generates code 5 times. To keep good code fixed, set `sempipes_prefitted_state__<name>` (see [concepts](../concepts.md#optimisable-operators-and-hidden-variables)).
-
 ## See also
 
 * Example script: [`examples/07_sem_gen_features.py`](../../examples/07_sem_gen_features.py)
